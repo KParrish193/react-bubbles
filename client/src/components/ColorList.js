@@ -28,25 +28,24 @@ const ColorList = (props) => {
     // think about where you will get the id from...
     // where is it saved right now?
     axiosWithAuth()
-      .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, updateColors)
+      .put(`/colors/${colorToEdit.id}`, colorToEdit)
       .then(res => {
         console.log('Put Success', res);
-        updateColors(res);
-        props.history.push('/bubblepage/');
-        updateColors(initialColor);
+        updateColors([...colors.filter(color => color.id !== colorToEdit.id), res.data]);
+        setEditing(false)
       })
       .catch(err => {
         console.log("what went wrong", err);
-        props.history.push('/login');
     })
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
     axiosWithAuth()
-      .delete(`http://localhost:5000/api/colors/${color.id}`)
+      .delete(`api/colors/${color.id}`)
       .then(res => {
         console.log("Delete", res)
+        updateColors([...colors.filter(data => data.id !== color.id), res.data]);
         props.history.push('/bubblepage/')
       })
       .catch(err => {
@@ -61,6 +60,7 @@ const ColorList = (props) => {
         {colors.map(color => (
           <li key={color.color} onClick={() => editColor(color)}>
             <span>
+
               <span className="delete" onClick={e => {
                     e.stopPropagation();
                     deleteColor(color)
@@ -77,6 +77,7 @@ const ColorList = (props) => {
           </li>
         ))}
       </ul>
+
       {editing && (
         <form onSubmit={saveEdit}>
           <legend>Edit Color</legend>
